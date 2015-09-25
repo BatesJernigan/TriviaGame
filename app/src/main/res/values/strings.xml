@@ -3,4 +3,14 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="gid"> 9022f64581646f253ecb15501ef68c93</string>
+    <string name="welcome">Welcome to\nTrivia App</string>
+    <string name="start_trivia_btn_label">Start Trivia</string>
+    <string name="create_question_btn_label">Create Quiz Question</string>
+    <string name="delete_all_btn_label">Delete All My Questions</string>
+    <string name="exit_btn_label">Exit</string>
+    <string name="title_activity_trvia">TrviaActivity</string>
+    <string name="title_activity_result">ResultActivity</string>
+    <string name="title_activity_create_question">CreateQuestionActivity</string>
+    <string name="title_activity_trivia">TriviaActivity</string>
 </resources>

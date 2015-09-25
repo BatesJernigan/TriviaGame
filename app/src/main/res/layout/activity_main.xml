@@ -9,8 +9,58 @@
                 tools:context=".MainActivity">
 
     <TextView
-        android:text="@string/hello_world"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:text="@string/welcome"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/main_menu_right_margin"
+        android:layout_marginLeft="@dimen/main_menu_left_margin"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:textSize="@dimen/h1_text_size"
+        android:id="@+id/welcome_label"/>
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/main_menu_right_margin"
+        android:layout_marginLeft="@dimen/main_menu_left_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_below="@id/welcome_label"
+        android:id="@+id/start_trivia_btn"
+        android:text="@string/start_trivia_btn_label"
+        android:onClick="changeToStartTriviaAct"/>
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/main_menu_right_margin"
+        android:layout_marginLeft="@dimen/main_menu_left_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_below="@id/start_trivia_btn"
+        android:id="@+id/create_question_btn"
+        android:text="@string/create_question_btn_label"
+        android:onClick="changeToCreateQuestionAct"/>
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/main_menu_right_margin"
+        android:layout_marginLeft="@dimen/main_menu_left_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_below="@id/create_question_btn"
+        android:id="@+id/delete_all_btn"
+        android:text="@string/delete_all_btn_label"
+        android:onClick="changeToDeleteAllAct"/>
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/exit_btn_label"
+        android:layout_marginRight="@dimen/main_menu_right_margin"
+        android:layout_marginLeft="@dimen/main_menu_left_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_below="@id/delete_all_btn"
+        android:id="@+id/exit_btn"
+        android:onClick="changeToExitAct"/>
 
 </RelativeLayout>

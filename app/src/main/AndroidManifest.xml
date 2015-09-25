@@ -16,6 +16,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ResultActivity"
+            android:label="@string/title_activity_result" >
+        </activity>
+        <activity
+            android:name=".CreateQuestionActivity"
+            android:label="@string/title_activity_create_question" >
+        </activity>
+        <activity
+            android:name=".TriviaActivity"
+            android:label="@string/title_activity_trivia" >
+        </activity>
     </application>
 
 </manifest>
