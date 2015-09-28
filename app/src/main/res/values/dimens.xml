@@ -5,4 +5,5 @@
     <dimen name="h1_text_size">40sp</dimen>
     <dimen name="main_menu_left_margin">50dp</dimen>
     <dimen name="main_menu_right_margin">50dp</dimen>
+    <dimen name="image_height">200dp</dimen>
 </resources>
