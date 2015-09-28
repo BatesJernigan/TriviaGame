@@ -13,4 +13,6 @@
     <string name="title_activity_result">ResultActivity</string>
     <string name="title_activity_create_question">CreateQuestionActivity</string>
     <string name="title_activity_trivia">TriviaActivity</string>
+    <string name="next_btn_label">Next</string>
+    <string name="quit_btn_label">Quit</string>
 </resources>

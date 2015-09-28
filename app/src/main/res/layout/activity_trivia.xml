@@ -6,11 +6,58 @@
                 android:paddingRight="@dimen/activity_horizontal_margin"
                 android:paddingTop="@dimen/activity_vertical_margin"
                 android:paddingBottom="@dimen/activity_vertical_margin"
-                tools:context="com.example.triviagame.TriviaActivity">
+                tools:context="com.example.triviagame.TriviaActivity"
+                android:id="@+id/relativeLayout">
 
     <TextView
-        android:text="@string/hello_world"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_blue_dark"
+        android:layout_marginLeft="@dimen/activity_vertical_margin"
+        android:layout_marginRight="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin"
+        android:id="@+id/question_number_text_view"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/image_height"
+        android:layout_alignLeft="@id/question_number_text_view"
+        android:layout_below="@id/question_number_text_view"
+        android:id="@+id/start_trivia_image_view"
+        android:src="@drawable/no_image"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/question_number_text_view"
+        android:text="@string/quit_btn_label"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/quit_btn"/>
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/question_number_text_view"
+        android:layout_alignStart="@id/question_number_text_view"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin"
+        android:id="@+id/answer_radio_group"
+        android:layout_above="@id/quit_btn"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/question_text_view"
+        android:layout_above="@id/answer_radio_group"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="@string/next_btn_label"
+        android:layout_marginRight="@dimen/activity_vertical_margin"
+        android:layout_marginEnd="@dimen/activity_vertical_margin"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/next_btn"/>
 
 </RelativeLayout>
