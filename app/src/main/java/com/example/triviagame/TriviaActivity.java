@@ -25,23 +25,51 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
 
 public class TriviaActivity extends AppCompatActivity {
-    final static String GROUP_ID = "9022f64581646f253ecb15501ef68c93";
-
     private int globalIndex = 0;
     private LinkedList<Question> questionLinkedList = new LinkedList<>();
+    private double totalCorrect = 0.0;
+    private double correctPercentage = 0.0;
+    private boolean hasSwitched = false;
+    static final String PERCENT_CORRECT = "percent_correct";
     RequestParams params;
+
+//    findViewById(R.id.save_contact_activity).setOnClickListener(new View.OnClickListener() {
+//        @Override
+//        public void onClick(View v) {
+//            String name = nameEditText.getText().toString();
+//            String phone = phoneEditText.getText().toString();
+//            String email = emailEditText.getText().toString();
+//
+//            if ( selectedImage == null || selectedImage.length() == 0) {
+//                selectedImage = getString(R.string.default_blank_avatar_path);
+//            }
+//
+//            if (isTextBad(name, phone, email)) {
+//                setResult(RESULT_CANCELED);
+//            } else {
+//                Intent intent = new Intent();
+//                intent.putExtra(MainActivity.CONTACT_KEY,
+//                    new Contact(name, phone, email, selectedImage));
+//                setResult(RESULT_OK, intent);
+//            }
+//            finish();
+//        }
+//    });
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trivia);
         params = new RequestParams("POST", "http://dev.theappsdr.com/apis/trivia_fall15/checkAnswer.php");
-        params.addParam("gid", GROUP_ID);
+        params.addParam("gid", MainActivity.GROUP_ID);
         if(isConnectedOnline()) {
             new GetQAs().execute("http://dev.theappsdr.com/apis/trivia_fall15/getAll.php");
         } else {
@@ -60,22 +88,26 @@ public class TriviaActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(isConnectedOnline()) {
+                    int asyncSafeIndex = globalIndex;
                     RadioGroup radioGroup = (RadioGroup) findViewById(R.id.answer_radio_group);
-                    RadioButton checkedRB = (RadioButton) findViewById(radioGroup.getCheckedRadioButtonId());
-                    if(checkedRB != null) {
-                        params.addParam("a", checkedRB.getText().toString());
+
+                    if(radioGroup.getCheckedRadioButtonId() != -1) {
+                        radioGroup.removeAllViews();
+                        params.addParam("a", "" + (radioGroup.getCheckedRadioButtonId()));
                         params.addParam("qid", questionLinkedList.get(globalIndex).getQuestionId() + "");
                         new CheckAnswer().execute(params);
+                    } else {
+                        globalIndex++;
+                        if(globalIndex == 2) {
+                            Intent intent = new Intent(TriviaActivity.this, ResultActivity.class);
+                            correctPercentage = (totalCorrect / 2.0) * 100.0;//questionLinkedList.size();
+                            intent.putExtra(PERCENT_CORRECT, (int) correctPercentage);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            setViewFields();
+                        }
                     }
-                    globalIndex++;
-                    if(globalIndex >= 5) {
-                        Intent intent = new Intent(TriviaActivity.this, ResultActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
-
-                    radioGroup.removeAllViews();
-                    setViewFields(questionLinkedList);
                 } else {
                     Toast.makeText(TriviaActivity.this, "Whoops, you're not connected!",
                         Toast.LENGTH_LONG).show();
@@ -84,31 +116,33 @@ public class TriviaActivity extends AppCompatActivity {
         });
     }
 
-    private void setViewFields(LinkedList<Question> questionList) {
+    private void setViewFields() {
         RadioGroup radioGroup = (RadioGroup) findViewById(R.id.answer_radio_group);
         TextView questionText = (TextView) findViewById(R.id.question_text_view);
         TextView questionId = (TextView) findViewById(R.id.question_number_text_view);
-        for(String answer: questionList.get(globalIndex).getAnswers()) {
+        for(int i = 0; i < questionLinkedList.get(globalIndex).getAnswers().size(); i++) {
+            String answer = questionLinkedList.get(globalIndex).getAnswers().get(i);
             RadioButton radioButton = new RadioButton(TriviaActivity.this);
             radioButton.setLayoutParams(new ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             radioButton.setText(answer);
+            radioButton.setId(i);
             radioGroup.addView(radioButton);
         }
-        questionText.setText(questionList.get(globalIndex).getQuestion());
-        questionId.setText("Q " + questionList.get(globalIndex).getQuestionId());
+        questionText.setText(questionLinkedList.get(globalIndex).getQuestion());
+        questionId.setText("Q " + questionLinkedList.get(globalIndex).getQuestionId());
 
-        if(questionList.get(globalIndex).getPictureUrl() != null &&
-            !questionList.get(globalIndex).getPictureUrl().equals("")) {
-            new GetImage().execute(questionList.get(globalIndex).getPictureUrl());
+        if(questionLinkedList.get(globalIndex).getPictureUrl() != null &&
+            !questionLinkedList.get(globalIndex).getPictureUrl().equals("")) {
+            new GetImage().execute(questionLinkedList.get(globalIndex).getPictureUrl());
         }
     }
 
-    private class GetQAs extends AsyncTask<String,Integer,String> {
+    private class GetQAs extends AsyncTask<String, Integer, String> {
         ProgressDialog progressDialog;
 
         @Override
         protected String doInBackground(String... params) {
-            BufferedReader reader = null;
+            BufferedReader reader;
             try {
                 URL url = new URL(params[0]);
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -141,7 +175,7 @@ public class TriviaActivity extends AppCompatActivity {
                         questionLinkedList.add(newQuestion);
                 }
                 if (questionLinkedList.get(globalIndex).getQuestionId() != -1) {
-                    setViewFields(questionLinkedList);
+                    setViewFields();
                 }
             } else {
                 Log.d("demo", "Null data");
@@ -165,16 +199,26 @@ public class TriviaActivity extends AppCompatActivity {
 
         private Question makeQuestion(String resultLine) {
             Integer questionId;
+            String url = "";
             LinkedList<String> answers = new LinkedList<>();
+            int number_semicolons = resultLine.length() - resultLine.replace(";", "").length();
+
             String[] lineArray = resultLine.split(";");
+            if(resultLine.contains("http://dev.theappsdr.com/apis/trivia_fall15/imgs/")) {
+                try {
+                    url = lineArray[lineArray.length-1];
+                } catch (IndexOutOfBoundsException e) {
+                    url = null;
+                }
+            }
             try {
                  questionId = Integer.parseInt(lineArray[0]);
             } catch (NumberFormatException e) {
                 return new Question(answers, null, null, -1);
             }
             String question = lineArray[1];
-            String url = lineArray[lineArray.length-1];
-            for(int i =2; i < (lineArray.length-1); i++) {
+
+            for(int i = 2; i < (number_semicolons - 1); i++) {
                 answers.add(lineArray[i]);
             }
             return new Question(answers, url, question, questionId);
@@ -187,12 +231,13 @@ public class TriviaActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(RequestParams... params) {
             BufferedReader reader;
+            String line;
             try {
                 HttpURLConnection con = params[0].setupConnection();
                 con.setRequestMethod("POST");
                 reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
                 publishProgress();
-                String line = "";
+
                 if ((line = reader.readLine()) != null) {
                     return line;
                 }
@@ -207,11 +252,21 @@ public class TriviaActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             progressDialog.dismiss();
             if (result != null) {
+                globalIndex++;
                 if(Integer.parseInt(result) == 1) {
-
+                    totalCorrect += 1.0;
                     Toast.makeText(TriviaActivity.this, "Great Job!", Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(TriviaActivity.this, "Ouch, Not Quite.", Toast.LENGTH_LONG).show();
+                }
+                if(globalIndex == 2) {
+                    Intent intent = new Intent(TriviaActivity.this, ResultActivity.class);
+                    correctPercentage = (totalCorrect / 2.0) * 100.0;//questionLinkedList.size();
+                    intent.putExtra(PERCENT_CORRECT, (int) correctPercentage);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    setViewFields();
                 }
             } else {
                 Log.d("demo", "Null data");
@@ -278,7 +333,7 @@ public class TriviaActivity extends AppCompatActivity {
 
     public boolean isConnectedOnline() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm.getActiveNetworkInfo(); // returns null for no network
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             return true;
         }

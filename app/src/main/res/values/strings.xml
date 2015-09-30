@@ -15,4 +15,11 @@
     <string name="title_activity_trivia">TriviaActivity</string>
     <string name="next_btn_label">Next</string>
     <string name="quit_btn_label">Quit</string>
+    <string name="submit_button_label">Submit</string>
+    <string name="plus_button_label">+</string>
+    <string name="image_button_label">Select Image</string>
+    <string name="trivia_results_text_view">Trivia Results</string>
+    <string name="quit_button_label">Quit</string>
+    <string name="try_again_label">Try Again</string>
+    <string name="try_again_results_text_view">Try again and see if you can get all the correct answers!</string>
 </resources>

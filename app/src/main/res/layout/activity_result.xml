@@ -1,16 +1,82 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
+                xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+                android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
                 android:paddingTop="@dimen/activity_vertical_margin"
                 android:paddingBottom="@dimen/activity_vertical_margin"
-                tools:context="com.example.triviagame.ResultActivity">
+                tools:context="com.example.arjun.hw3.ResultsActivity">
 
     <TextView
-        android:text="@string/hello_world"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/trivia_results_text_view"
+        android:id="@+id/trivia_results_title_text_view"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:layout_centerHorizontal="true" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Correct Answers"
+        android:id="@+id/correct_answers_text_view"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:layout_below="@id/trivia_results_title_text_view"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/quit_button_label"
+        android:id="@+id/results_quit_btn"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/try_again_label"
+        android:id="@+id/try_again_btn"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:id="@+id/progressBar"
+        android:layout_below="@id/correct_answers_text_view"
+        android:layout_alignLeft="@id/correct_answers_text_view"
+        android:layout_alignStart="@id/correct_answers_text_view"
+        android:layout_alignEnd="@id/try_again_btn"
+        android:layout_alignRight="@id/try_again_btn"
+        android:layout_marginLeft="60dp"
+        android:layout_marginStart="60dp"
+        android:layout_centerHorizontal="true"
+        android:max="100"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/correct_answers_text_view"
+        android:text="0%"
+        android:id="@+id/progress_bar_text_view"
+        android:layout_alignTop="@id/progressBar"
+        android:layout_alignBottom="@id/progressBar"
+        android:layout_marginRight="@dimen/activity_vertical_margin"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/try_again_results_text_view"
+        android:id="@+id/results_text_view"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"/>
 </RelativeLayout>

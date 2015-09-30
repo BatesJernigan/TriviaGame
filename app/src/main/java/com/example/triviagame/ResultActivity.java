@@ -1,37 +1,48 @@
 package com.example.triviagame;
 
+import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 public class ResultActivity extends AppCompatActivity {
-
+    ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_result, menu);
-        return true;
-    }
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        TextView progressBarTextView = (TextView) findViewById(R.id.progress_bar_text_view);
+        Log.d("demo", "this intent " + this.getIntent().getExtras().getInt(TriviaActivity.PERCENT_CORRECT));
+        int integerProgress = this.getIntent().getExtras().getInt(TriviaActivity.PERCENT_CORRECT);
+        progressBar.setProgress(integerProgress);
+        progressBarTextView.setText(integerProgress+"%");
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        Button try_again_btn = (Button) findViewById(R.id.try_again_btn);
+        Button quit_btn = (Button) findViewById(R.id.results_quit_btn);
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        try_again_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+                Intent intent = new Intent(ResultActivity.this, TriviaActivity.class);
+                startActivity(intent);
+            }
+        });
 
-        return super.onOptionsItemSelected(item);
+        quit_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 }
