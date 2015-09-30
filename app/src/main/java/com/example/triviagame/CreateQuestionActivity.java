@@ -18,8 +18,11 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -27,6 +30,10 @@ import java.util.ArrayList;
 
 public class CreateQuestionActivity extends Activity {
 
+    String attachmentName = "bitmap";
+    String attachmentFileName = "bitmap.bmp";
+    String crlf = "\r\n";
+    String twoHyphens = "--";
     int count = 0;
     int name_count = -1;
     int answer = 0;
@@ -35,10 +42,15 @@ public class CreateQuestionActivity extends Activity {
     ProgressDialog progressDialog;
     private static final int SELECT_PICTURE = 1;
     Uri uri;
-    private String imagepath;
     ArrayList<String> nlist = new ArrayList<>();
     final StringBuilder listString = new StringBuilder();
     Bitmap bitmap = null;
+    String boundary =  "*****";
+
+    EditText question;
+    Button plus;
+    Button submit;
+    EditText option;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -49,7 +61,6 @@ public class CreateQuestionActivity extends Activity {
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 ImageView imageView = (ImageView) findViewById(R.id.imageView);
-                imagepath = getPath(uri);
                 imageView.setImageBitmap(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -57,23 +68,15 @@ public class CreateQuestionActivity extends Activity {
         }
     }
 
-    public String getPath(Uri uri) {
-        String[] projection = {MediaStore.Images.Media.DATA};
-        Cursor cursor = managedQuery(uri, projection, null, null, null);
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        return cursor.getString(column_index);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_question);
 
-        final EditText option = (EditText) findViewById(R.id.editTextOption);
-        final EditText question = (EditText) findViewById(R.id.editTextQuestion);
-        final Button plus = (Button) findViewById(R.id.plusbtn);
-        final Button submit = (Button) findViewById(R.id.SubmitBtn);
+        option = (EditText) findViewById(R.id.editTextOption);
+
+        plus = (Button) findViewById(R.id.plusbtn);
+        submit = (Button) findViewById(R.id.SubmitBtn);
         Button select_img = (Button) findViewById(R.id.SelectImgBtn);
 
 
@@ -91,9 +94,8 @@ public class CreateQuestionActivity extends Activity {
         plus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 String optname = option.getText().toString();
-                if (option.getText().toString().isEmpty()) {
+                if (optname.isEmpty()) {
                     Toast.makeText(CreateQuestionActivity.this, "Please enter an option name", Toast.LENGTH_SHORT).show();
 
                 } else {
@@ -106,40 +108,46 @@ public class CreateQuestionActivity extends Activity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(bitmap != null) {
+                    RequestParams params = new RequestParams("POST", "http://dev.theappsdr.com/apis/trivia_fall15/uploadPhoto.php");
+                    Log.d("demo", "bitmap string value of" + String.valueOf(bitmap));
+                    Log.d("demo", "uri to string" + uri.toString());
+                    params.addParam("uploaded_file", uri.getPath());//String.valueOf(bitmap));
+                    new UploadImageWithParams().execute(params);
+                } else {
+                    question = (EditText) findViewById(R.id.editTextQuestion);
 
-//                RequestParams params = new RequestParams("POST", "http://dev.theappsdr.com/apis/trivia_fall15/uploadPhoto.php");
-//                params.addParam("uploaded_file", String.valueOf(bitmap));
-//                new UploadImageWithParams().execute(params);
+                    if(question.getText().toString().isEmpty()) {
+                        Toast.makeText(CreateQuestionActivity.this, "Please type a question",
+                            Toast.LENGTH_SHORT).show();
+                    }
+                    else if(count < 2) {
+                        Toast.makeText(CreateQuestionActivity.this, "Number of options should be more"+
+                            " than 2.\n Please add more options", Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        if(bitmap != null) {
+                            for(int i =0; i < nlist.size(); i++) {
+                                listString.append(nlist.get(i)+";");
+                            }
+                            qFinal = question.getText().toString() + ";" + listString + ";"+ answer +";";
+                        } else {
+                            for(int i =0; i < nlist.size(); i++) {
+                                listString.append(nlist.get(i)+";");
+                            }
+                            Log.d("demo", "list string create question\n" + listString.toString());
+                            qFinal = question.getText().toString() + ";" + listString +";" + answer +";";
+                            Log.d("demo", "question final\n" + qFinal);
+                            RequestParams params = new RequestParams("POST", "http://dev.theappsdr.com/apis/trivia_fall15/saveNew.php");
+                            params.addParam("gid", group_id);
+                            params.addParam("q", qFinal);
 
-                if(question.getText().toString().isEmpty()) {
-                    Toast.makeText(CreateQuestionActivity.this, "Please type a question",
-                        Toast.LENGTH_SHORT).show();
-                }
-                else if(count < 2) {
-                    Toast.makeText(CreateQuestionActivity.this, "Number of options should be more"+
-                        " than 2.\n Please add more options", Toast.LENGTH_LONG).show();
-                }
-                else {
-                    if(bitmap != null) {
-                        for(int i =0; i < nlist.size(); i++) {
-                            listString.append(nlist.get(i)+";");
+                            Log.d("demo", "params in create question\n" + params.toString());
+                            new SaveQueswithParams().execute(params);
                         }
-                        qFinal = question.getText().toString() + ";" + listString + ";"+ answer +";";
-                    } else {
-                        for(int i =0; i < nlist.size(); i++) {
-                            listString.append(nlist.get(i)+";");
-                        }
-                        Log.d("demo", "list string create question\n" + listString.toString());
-                        qFinal = question.getText().toString() + ";" + listString +";" + answer +";";
-                        Log.d("demo", "question final\n" + qFinal);
-                        RequestParams params = new RequestParams("POST", "http://dev.theappsdr.com/apis/trivia_fall15/saveNew.php");
-                        params.addParam("gid", group_id);
-                        params.addParam("q", qFinal);
-
-                        Log.d("demo", "params in create question\n" + params.toString());
-                        new SaveQueswithParams().execute(params);
                     }
                 }
+
             }
         });
     }
@@ -171,12 +179,42 @@ public class CreateQuestionActivity extends Activity {
             try {
                 HttpURLConnection con = params[0].setupConnection();
                 reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                StringBuilder sb = new StringBuilder();//arraylist of strings
+                con.setDoOutput(true);
+
+                con.setRequestProperty("Connection", "Keep-Alive");
+                con.setRequestProperty("Cache-Control", "no-cache");
+                con.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+
+                DataOutputStream request = new DataOutputStream(con.getOutputStream());
+
+                request.writeBytes(twoHyphens + boundary + crlf);
+                request.writeBytes("Content-Disposition: form-data; name=\"" + attachmentName + "\";filename=\"" + attachmentFileName + "\"" + crlf);
+                request.writeBytes(crlf);
+
+                request.writeBytes(crlf);
+                request.writeBytes(twoHyphens + boundary + twoHyphens + crlf);
+
+                request.flush();
+                request.close();
+
+                InputStream responseStream = new BufferedInputStream(con.getInputStream());
+
+                BufferedReader responseStreamReader = new BufferedReader(new InputStreamReader(responseStream));
                 String line = "";
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line + "\n");
+                StringBuilder stringBuilder = new StringBuilder();
+                while ((line = responseStreamReader.readLine()) != null)
+                {
+                    stringBuilder.append(line).append("\n");
                 }
-                return sb.toString();
+                responseStreamReader.close();
+
+                String response = stringBuilder.toString();
+
+                responseStream.close();
+
+                con.disconnect();
+
+                return response;
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -187,8 +225,40 @@ public class CreateQuestionActivity extends Activity {
         }
 
         protected void onPostExecute(String result) {
+            Log.d("demo", "result from image upload " + result);
             if (result != null) {
+                question = (EditText) findViewById(R.id.editTextQuestion);
                 Log.d("demo", "result present " + result);
+
+                if(question.getText().toString().isEmpty()) {
+                    Toast.makeText(CreateQuestionActivity.this, "Please type a question",
+                        Toast.LENGTH_SHORT).show();
+                }
+                else if(count < 2) {
+                    Toast.makeText(CreateQuestionActivity.this, "Number of options should be more"+
+                        " than 2.\n Please add more options", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    if(bitmap != null) {
+                        for(int i =0; i < nlist.size(); i++) {
+                            listString.append(nlist.get(i)+";");
+                        }
+                        qFinal = question.getText().toString() + ";" + listString + ";"+ answer +";";
+                    } else {
+                        for(int i =0; i < nlist.size(); i++) {
+                            listString.append(nlist.get(i)+";");
+                        }
+                        Log.d("demo", "list string create question\n" + listString.toString());
+                        qFinal = question.getText().toString() + ";" + listString +";" + answer +";";
+                        Log.d("demo", "question final\n" + qFinal);
+                        RequestParams params = new RequestParams("POST", "http://dev.theappsdr.com/apis/trivia_fall15/saveNew.php");
+                        params.addParam("gid", group_id);
+                        params.addParam("q", qFinal);
+
+                        Log.d("demo", "params in create question\n" + params.toString());
+                        new SaveQueswithParams().execute(params);
+                    }
+                }
             } else {
                 Log.d("demo", "Null data");
             }

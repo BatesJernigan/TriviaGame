@@ -35,34 +35,8 @@ public class TriviaActivity extends AppCompatActivity {
     private LinkedList<Question> questionLinkedList = new LinkedList<>();
     private double totalCorrect = 0.0;
     private double correctPercentage = 0.0;
-    private boolean hasSwitched = false;
     static final String PERCENT_CORRECT = "percent_correct";
     RequestParams params;
-
-//    findViewById(R.id.save_contact_activity).setOnClickListener(new View.OnClickListener() {
-//        @Override
-//        public void onClick(View v) {
-//            String name = nameEditText.getText().toString();
-//            String phone = phoneEditText.getText().toString();
-//            String email = emailEditText.getText().toString();
-//
-//            if ( selectedImage == null || selectedImage.length() == 0) {
-//                selectedImage = getString(R.string.default_blank_avatar_path);
-//            }
-//
-//            if (isTextBad(name, phone, email)) {
-//                setResult(RESULT_CANCELED);
-//            } else {
-//                Intent intent = new Intent();
-//                intent.putExtra(MainActivity.CONTACT_KEY,
-//                    new Contact(name, phone, email, selectedImage));
-//                setResult(RESULT_OK, intent);
-//            }
-//            finish();
-//        }
-//    });
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,9 +72,9 @@ public class TriviaActivity extends AppCompatActivity {
                         new CheckAnswer().execute(params);
                     } else {
                         globalIndex++;
-                        if(globalIndex == 2) {
+                        if(globalIndex == (double)questionLinkedList.size()) {
                             Intent intent = new Intent(TriviaActivity.this, ResultActivity.class);
-                            correctPercentage = (totalCorrect / 2.0) * 100.0;//questionLinkedList.size();
+                            correctPercentage = (totalCorrect / (double)questionLinkedList.size()) * 100.0;
                             intent.putExtra(PERCENT_CORRECT, (int) correctPercentage);
                             startActivity(intent);
                             finish();
@@ -131,8 +105,7 @@ public class TriviaActivity extends AppCompatActivity {
         questionText.setText(questionLinkedList.get(globalIndex).getQuestion());
         questionId.setText("Q " + questionLinkedList.get(globalIndex).getQuestionId());
 
-        if(questionLinkedList.get(globalIndex).getPictureUrl() != null &&
-            !questionLinkedList.get(globalIndex).getPictureUrl().equals("")) {
+        if(questionLinkedList.get(globalIndex).getPictureUrl() != null) {
             new GetImage().execute(questionLinkedList.get(globalIndex).getPictureUrl());
         }
     }
@@ -259,9 +232,9 @@ public class TriviaActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(TriviaActivity.this, "Ouch, Not Quite.", Toast.LENGTH_LONG).show();
                 }
-                if(globalIndex == 2) {
+                if(globalIndex == (questionLinkedList.size()-1)) {
                     Intent intent = new Intent(TriviaActivity.this, ResultActivity.class);
-                    correctPercentage = (totalCorrect / 2.0) * 100.0;//questionLinkedList.size();
+                    correctPercentage = (totalCorrect / (double)questionLinkedList.size()) * 100.0;
                     intent.putExtra(PERCENT_CORRECT, (int) correctPercentage);
                     startActivity(intent);
                     finish();
